@@ -68,7 +68,9 @@
 </template>
 
 <script>
-  import {shareDBConnection} from '../shareDBConnection'
+  import {
+    shareDBConnection
+  } from '../shareDBConnection'
   import chatConnection from '../chatConnection'
   import {
     logout
@@ -76,7 +78,13 @@
   import {
     mapGetters
   } from 'vuex'
+  import Quill from 'quill'
+  import Parchment from 'parchment'
   const colors = ['red', 'blue', 'green', 'gold']
+  // var userAttributor = new Parchment.Attributor.Attribute('user', 'class', {
+  //   scope: Parchment.Scope.INLINE
+  // })
+  // Quill.register(userAttributor)
   export default {
     name: 'HelloWorld',
     data() {
@@ -94,6 +102,7 @@
               // userOnly: true
             }
           },
+          placeholder: '',
           theme: 'snow'
         },
         mydoc: ''
@@ -121,23 +130,29 @@
       }
       console.log('this is current quill instance object', this.editor)
       // var mydoc = shareDBConnection.get('examples', 'richtext')
-      this.mydoc = shareDBConnection.get('examples', 'richtext')
-      const update = () => {
-        console.log('update')
-        // this.idMatch = query.results.map(e => e).reduce((a, t) => ({ ...a, [t.data.uid]: { sid: t.id } }), {})
-        // this.results = query.results.map(e => e.data)
-      }
-      var query = shareDBConnection.createSubscribeQuery('examples')
-      query.on('ready', update)
-      query.on('changed', update)
+      this.mydoc = shareDBConnection.get('test', 'richtext')
+      // const update = () => {
+      //   console.log('update')
+      //   console.log(this.editor.getContents())
+      //   // this.idMatch = query.results.map(e => e).reduce((a, t) => ({ ...a, [t.data.uid]: { sid: t.id } }), {})
+      //   // this.results = query.results.map(e => e.data)
+      // }
+      // var query = shareDBConnection.createSubscribeQuery('examples')
+      // query.on('ready', update)
+      // query.on('changed', update)
       this.mydoc.subscribe((err) => {
-        if (err) throw err
+        if (err) throw err;
+
+        if (!this.mydoc.type)
+          this.mydoc.create([{
+            insert: '\n'
+          }], 'rich-text');
         this.editor.setContents(this.mydoc.data);
         this.editor.on('text-change', (delta, oldDelta, source) => {
           if (source !== 'user') return;
           let d = new Date()
           let len = delta.ops.length
-          let color = colors[this.userInfo.id-1];
+          let color = colors[this.userInfo.id - 1];
           // 一般有多个操作，暂时在insert上加一个attributes
           for (let i = 0; i < delta.ops.length; i++) {
             let op = delta.ops[i];
@@ -212,6 +227,14 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .duoyi1 {
+    color: red
+  }
+
+  .duoyi2 {
+    color: green
+  }
+
   h1,
   h2 {
     font-weight: normal;
