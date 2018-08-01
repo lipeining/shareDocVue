@@ -130,7 +130,10 @@
       }
       console.log('this is current quill instance object', this.editor)
       // var mydoc = shareDBConnection.get('examples', 'richtext')
-      this.mydoc = shareDBConnection.get('test', 'richtext')
+      let collectionName = this.$route.query.collectionName
+      let documentId = this.$route.query.documentId
+      console.log(collectionName, documentId)
+      this.mydoc = shareDBConnection.get(collectionName, documentId)
       // const update = () => {
       //   console.log('update')
       //   console.log(this.editor.getContents())
@@ -145,7 +148,7 @@
 
         if (!this.mydoc.type)
           this.mydoc.create([{
-            insert: '\n'
+            insert: 'Hi\n'
           }], 'rich-text');
         this.editor.setContents(this.mydoc.data);
         this.editor.on('text-change', (delta, oldDelta, source) => {
