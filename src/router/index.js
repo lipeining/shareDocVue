@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import login from '../views/login'
-import store from "../vuex/user"
+import store from '../vuex/user'
+import timeslider from '../views/timeslider'
 
 Vue.use(Router)
 
@@ -21,6 +22,14 @@ let routes = [{
     component: login,
     meta: {
       requiresNotAuth: true
+    }
+  },
+  {
+    path: '/timeslider',
+    name: 'timeslider',
+    component: timeslider,
+    meta: {
+      requiresAuth: true
     }
   }
 ];
