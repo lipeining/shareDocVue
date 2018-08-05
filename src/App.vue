@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <app-header/>
+    <app-header v-if="isLogin">
+    </app-header>
     <!-- <img src="./assets/logo.png"> -->
     <router-view/>
   </div>
@@ -8,10 +9,17 @@
 
 <script>
   import AppHeader from './components/header'
+  import {mapGetters} from 'vuex'
   export default {
     name: 'App',
     components: {
       AppHeader
+    },    
+    computed  : {
+      // 使用对象展开运算符将 getter 混入 computed 对象中
+      ...mapGetters([
+        'isLogin'
+      ])
     },
   }
 

@@ -8,8 +8,12 @@ import {
 export {
   login,
   logout,
-  test
+  update,
+  getUsers,
+  reg
 };
-const login = get.bind(null, '/api/v1/login');
+const login = post.bind(null, '/api/v1/login');
+const reg = post.bind(null, '/api/v1/reg');
 const logout = get.bind(null, '/api/v1/logout');
-const test = get.bind(null, '/api/v1/test');
+const update = put.bind(null, '/api/v1/user');
+const getUsers = get.bind(null, '/api/v1/users');

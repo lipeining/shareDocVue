@@ -1,10 +1,5 @@
 <template>
   <div>
-    <el-row>
-      <el-button @click="logout">
-        logout
-      </el-button>
-    </el-row>
     <div id="toolbar-container">
       <span class="ql-formats">
         <button msg="undo" @click="editorUndo">
@@ -182,22 +177,6 @@
       })
     },
     methods: {
-      logout() {
-        logout()
-          .then(res => {
-            this.$store.dispatch('delUserInfo');
-            this.$router.push({
-              path: '/login'
-            })
-          })
-          .catch(err => {
-            // todo
-            this.$store.dispatch('delUserInfo');
-            this.$router.push({
-              path: '/login'
-            })
-          })
-      },
       editorRedo() {
         console.log('redo')
         this.editor.history.redo()
@@ -230,31 +209,4 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .duoyi1 {
-    color: red
-  }
-
-  .duoyi2 {
-    color: green
-  }
-
-  h1,
-  h2 {
-    font-weight: normal;
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-
-  a {
-    color: #42b983;
-  }
-
 </style>

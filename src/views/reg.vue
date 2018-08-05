@@ -1,58 +1,85 @@
 <template>
   <section class="login">
     <header class="login-header">
-      <h1 class="brand">
-      </h1>
       <el-alert v-if="error" :title="error.title" type="warning" :description="error.message" show-icon/>
     </header>
 
     <el-form class="login-form" auto-complete="off" :model="user" label-width="75px"
              :rules="rules" ref="loginForm">
-      <h2 class="heading">Login</h2>
+      <h2 class="heading">Register</h2>
       <el-form-item label="Email" prop="email">
         <el-input type="text" v-model="user.email" placeholder="Please enter email">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="name" prop="name">
+        <el-input type="text" v-model="user.name" placeholder="Please enter username">
         </el-input>
       </el-form-item>
       <el-form-item label="password" prop="password">
         <el-input type="password" v-model="user.password" placeholder="Please enter password">
         </el-input>
       </el-form-item>
+      <el-form-item label="password" prop="passwordR">
+        <el-input type="password" v-model="user.passwordR"
+                  placeholder="Please enter password"
+                  v-on:keyup.enter.native="submit('loginForm')">
+        </el-input>
+      </el-form-item>
       <el-button type="primary" :loading="loading" @click="submit('loginForm')">
-        {{ loading ? 'Loading...' : 'Login' }}
+        {{ loading ? 'Loading...' : 'Register' }}
       </el-button>
     </el-form>
     <footer class="login-footer">
-      Not a member go to
-      <router-link to="/reg">register</router-link>
+      already register go to
+      <router-link to="/login">login</router-link>
     </footer>
   </section>
 </template>
 
 <script>
-  import {login} from '../api/user';
+  import {reg} from '../api/user';
   import HmacSHA256 from 'crypto-js/hmac-sha256';
   export default {
-    name      : 'login',
+    name      : 'reg',
     components: {
     },
     data() {
-      const user  = {
-        email   : '',
-        password: ''
+      let validatePass = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.user.password) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
+      const user       = {
+        email    : '',
+        name     : '',
+        password : '',
+        passwordR: ''
       };
       // form validate rules
-      const rules = {
-        email   : [
+      const rules      = {
+        name     : [
+          {required: true, message: '请输入用户名'},
+          {min: 2, max: 16, message: '长度在 2 到 16 个字符'}
+        ],
+        email    : [
           {required: true, message: '请输入邮箱', type: 'email'}
         ],
-        password: [
+        password : [
           {required: true, message: '请输入密码'},
           {min: 2, max: 16, message: '长度在 2 到 16 个字符'}
+        ],
+        passwordR: [
+          {validator: validatePass},
+          {required: true, message: '请再次输入密码'}
         ]
       };
       return {
-        user   : user, rules: rules,
-        error  : null, loading: false,
+        user : user, rules: rules,
+        error: null, loading: false
       };
     },
     methods   : {
@@ -66,14 +93,12 @@
             this.error   = null;
             this.loading = true;
             let password = HmacSHA256(this.user.password, 'sharedoc').toString();
-            // console.log(password);
-            let user     = {
-              email: this.user.email,
+            reg({
+              name    : this.user.name,
+              email   : this.user.email,
               password: password
-            };
-            login(user)
+            })
               .then(result => {
-                // console.log(result);
                 this.$store.dispatch('setUserInfo', result.user)
                   .then(() => {
                     this.$router.replace({path: this.$route.query.redirect || '/'});
@@ -130,7 +155,7 @@
   .login .login-form     .el-button {
         margin-top: .5rem;
         width: 100%;
-  }
+      }
   
   .login .login-footer {
       margin-bottom: 1rem;

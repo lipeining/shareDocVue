@@ -1,17 +1,19 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import index from '@/components/index'
 import login from '../views/login'
+import reg from '../views/reg'
 import store from '../vuex/user'
 import timeslider from '../views/timeslider'
+import doc from '../views/doc'
 
 Vue.use(Router)
 
 
 let routes = [{
     path: '/',
-    name: 'HelloWorld',
-    component: HelloWorld,
+    name: 'index',
+    component: index,
     meta: {
       requiresAuth: true
     }
@@ -23,11 +25,27 @@ let routes = [{
     meta: {
       requiresNotAuth: true
     }
+  },  
+  {
+    path: '/reg',
+    name: 'reg',
+    component: reg,
+    meta: {
+      requiresNotAuth: true
+    }
   },
   {
     path: '/timeslider',
     name: 'timeslider',
     component: timeslider,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/doc',
+    name: 'doc',
+    component: doc,
     meta: {
       requiresAuth: true
     }
