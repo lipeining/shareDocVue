@@ -5,6 +5,7 @@
       <el-menu-item index="/timeslider"> TimeSlider</el-menu-item>
       <el-submenu index="">
         <template slot="title">{{curUser.name}}</template>
+        <el-menu-item index="/profile"> Profile</el-menu-item>
         <el-menu-item index="">
           <i @click="logout()">logout
           </i>
