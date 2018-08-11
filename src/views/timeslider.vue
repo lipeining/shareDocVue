@@ -94,6 +94,12 @@
     name: 'TimeSlider',
     data() {
       return {
+        A: [],
+        X: [],
+        Y: [],
+        IMETyping: false,
+        toSend: false,
+        ac: false,
         ops: {},
         total: 100,
         count: 30,
@@ -139,33 +145,94 @@
       console.log('this is current quill instance object', this.editor);
       this.editor.disable();
       this.editor.on('text-change', this.onTextChange);
+      // this.io.on('new_changes', this.syncServer);
+      // this.io.on('accept_commit', this.syncACK);
+      // this.io.on('error', this.disable());
     },
     methods: {
-      onTextChange(delta, oldDelta, source) {
-        if (source !== 'user') return;
-        let d = new Date();
-        // let len = delta.ops.length;
-        // let color = colors[this.userInfo.id - 1];
-        // // 一般有多个操作，暂时在insert上加一个attributes
-        // for (let i = 0; i < delta.ops.length; i++) {
-        //   let op = delta.ops[i];
-        //   if (op.insert) {
-        //     op.attributes = {
-        //       // color: color,
-        //       user: this.userInfo.name
-        //     }
-        //     // 可以上色
-        //     // vm.$set(op, 'attributes', 'red')
-        //   } else {
+      syncSocket() {
+        // 这里在发送，处理socket
+        if (this.toSend) {
+          if (this.IMETyping) {
+            // 中文输入时，不发送，等待输入完毕，再同步
+          } else {
+            if (this.ac) {
+              // 确保服务器已经接受上一个请求了
+              // send y ,update x
+              this.X = this.Y;
+              this.Y = [];
+              this.editor.disable();
+              // send.then(this.editor.enable());
+              this.toSend = false;
+            } else {
 
-        //   }
-        // }
-        console.log(d.getSeconds() + JSON.stringify(delta));
+            }
+          }
+        } else {
+
+        }
+      },
+      // syncIME(){
+
+      // },
+      syncServer(data) {
+        // 解析data中的changeset
+        // 插入到文档中
+        // b=data.changeset;
+        // a'=ab
+        // x'=follow(b,x);
+        // xb=follow(x,b);
+        // y'=follow(xb,y);
+        // d=follow(y,xb);
+
+        // 更新数据
+        // a=a';
+        // x=x';
+        // y=y';
+
+        // this.editor.updateContent(d);
+      },
+      syncACK(data) {
+        // 将A,X,Y更新
+        // a=a.compose(x)
+        // x=[];
+      },
+      onIMETypeStart() {
+        this.IMETyping = true;
+      },
+      onIMETypeEnd() {
+        // 这里同步IME输入
+        // x=y
+        // send x
+        // y = []
+        this.IMETyping = false;
+        // this.syncIME();
+      },
+      setInterTimer() {
+        setInterval(() => {
+          this.toSend = true;
+        }, 500);
+      },
+      onTextChange(delta, oldDelta, source) {
+        if (source == 'api') {
+          console.log("An API call triggered this change.");
+        } else if (source == 'user') {
+          console.log("A user action triggered this change.");
+          // if (source !== 'user') return;
+          let d = new Date();
+          console.log(d.getSeconds() + JSON.stringify(delta));
+          // text-change主要是收集Y
+          // 在syncSocket中将编辑器disable()
+          // while (this.toSend) {;
+          // }
+          this.Y.push(delta);
+          this.syncSocket();
+        }
       },
       getDocOps(from, to) {
         let queryString = {
           documentId: this.$route.query.documentId,
-          collection: this.$route.query.collection,
+          collectionName: this.$route.query.collectionName,
           from: from || 1,
           to: to || 30
         };

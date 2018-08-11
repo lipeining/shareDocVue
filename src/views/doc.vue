@@ -1,5 +1,9 @@
 <template>
   <div>
+    <el-row>
+      <el-button :icon="getTagIcon()" v-loading.fullscreen.lock="editorLock">
+      </el-button>
+    </el-row>
     <div id="toolbar-container">
       <span class="ql-formats">
         <button msg="undo" @click="editorUndo">
@@ -85,6 +89,7 @@
     data() {
       return {
         content: '',
+        editorLock: true,
         editorOption: {
           // some quill options
           modules: {
@@ -113,6 +118,7 @@
         // ...
       ])
     },
+    watch: {},
     mounted() {
       console.log(chatConnection)
       chatConnection.onopen = function open() {
@@ -123,12 +129,13 @@
         console.log(data);
         // chatConnection.send('wow');
       }
-      console.log('this is current quill instance object', this.editor)
+      console.log('this is current quill instance object', this.editor);
+      this.disableEditor();
       // var mydoc = shareDBConnection.get('examples', 'richtext')
-      let collection = this.$route.query.collection
-      let documentId = this.$route.query.documentId
-      console.log(collection, documentId)
-      this.mydoc = shareDBConnection.get(collection, documentId)
+      let collectionName = this.$route.query.collectionName;
+      let documentId = this.$route.query.documentId;
+      console.log(collectionName, documentId);
+      this.mydoc = shareDBConnection.get(collectionName, documentId)
       // const update = () => {
       //   console.log('update')
       //   console.log(this.editor.getContents())
@@ -144,6 +151,7 @@
         if (!this.mydoc.type)
           this.mydoc.create([], 'rich-text');
         this.editor.setContents(this.mydoc.data);
+        this.enableEditor();
         this.editor.on('text-change', (delta, oldDelta, source) => {
           if (source !== 'user') return;
           let d = new Date()
@@ -172,10 +180,25 @@
           if (source === 'wow') return;
           console.log(op);
           this.editor.updateContents(op)
+        });
+        this.mydoc.on('error', (err) => {
+          console.log(err);
+          this.disableEditor();
         })
       })
     },
     methods: {
+      getTagIcon() {
+        return this.editorLock ? 'el-icon-loading' : 'el-icon-success';
+      },
+      enableEditor() {
+        this.editor.enable();
+        this.editorLock = false;
+      },
+      disableEditor() {
+        this.editor.disable();
+        this.editorLock = true;
+      },
       editorRedo() {
         console.log('redo')
         this.editor.history.redo()
@@ -208,4 +231,6 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+
 </style>

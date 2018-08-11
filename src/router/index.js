@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import index from '@/components/index'
+import index from '@/views/index'
 import login from '@/views/login'
 import profile from '@/views/profile'
 import reg from '@/views/reg'
