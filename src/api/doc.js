@@ -8,9 +8,10 @@ import {
   export {
     createDoc,
     getDocOps,
-    addDocUser
+    addDocUser,
+    getSelectDocs
   };
   const getDocOps = get.bind(null, '/api/v1/doc/ops');
   const createDoc = post.bind(null, '/api/v1/doc');
   const addDocUser =  put.bind(null, '/api/v1/doc/user');
-//   const login = get.bind(null, '/api/v1/login');
+  const getSelectDocs = get.bind(null, '/api/v1/docs/name');

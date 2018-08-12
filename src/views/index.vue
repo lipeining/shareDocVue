@@ -21,26 +21,6 @@
           </el-table-column>
         </el-table>
       </el-col>
-      <!-- <el-col :span="12">
-        <el-table :data="docs" border style="width: 100%">
-          <el-table-column prop="item._id" label="id">
-          </el-table-column>
-          <el-table-column prop="item.creator" label="creator">
-          </el-table-column>              
-          <el-table-column prop="item.collectionName" label="collectionName">
-          </el-table-column>
-          <el-table-column prop="item.documentId" label="documentId">
-          </el-table-column>
-          <el-table-column prop="item.date" label="date">
-          </el-table-column>                     
-          <el-table-column prop="role" label="role">
-          </el-table-column>
-          <el-table-column prop="star" label="star">
-          </el-table-column>
-          <el-table-column prop="status" label="status">
-          </el-table-column>
-        </el-table>
-      </el-col> -->
     </el-row>
     <el-row :gutter="20">
       <el-col :span="7">
@@ -57,10 +37,18 @@
       <el-col :span="7">
         <el-form :model="docuser" label-width="130px" auto-complete="on" :rules="userRules" ref="docUserForm">
           <el-form-item label="docId" prop="docId">
-            <el-input v-model="docuser.docId" type="text"></el-input>
+            <!-- <el-input v-model="docuser.docId" type="text"></el-input> -->
+            <el-select v-model="docuser.docId" clearable placeholder="请选择">
+              <el-option v-for="item in selectDocs" :key="item._id" :label="item.documentId" :value="item._id">
+              </el-option>
+            </el-select>            
           </el-form-item>
           <el-form-item label="userId" prop="userId">
-            <el-input v-model="docuser.userId" type="text"></el-input>
+            <!-- <el-input v-model="docuser.userId" type="text"></el-input> -->
+            <el-select v-model="docuser.userId" clearable placeholder="请选择">
+              <el-option v-for="item in selectUsers" :key="item._id" :label="item.name" :value="item._id">
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-button type="primary" @click="submitDocUserForm('docUserForm')">submit</el-button>
         </el-form>
@@ -73,8 +61,12 @@
 <script>
   import {
     createDoc,
+    getSelectDocs,
     addDocUser
   } from '../api/doc';
+  import{
+    getSelectUsers
+  } from '../api/user';
   import {
     mapGetters
   } from 'vuex';
@@ -124,7 +116,8 @@
           docId: '',
           userId: ''
         },
-        docs: [],
+        selectUsers: [],
+        selectDocs: [],
         docRules: docRules,
         userRules: userRules
       }
@@ -137,7 +130,8 @@
       ])
     },
     created() {
-      this.docs = this.userInfo.docs;
+      this.getSelectDocs();
+      this.getSelectUsers();
     },
     mounted() {},
     methods: {
@@ -177,6 +171,26 @@
           }
         });
       },
+      getSelectUsers(){
+        getSelectUsers()
+        .then(res=>{
+          this.selectUsers = res.users;
+          console.log(res);
+        })
+        .catch(err=>{
+          console.log(err);
+        })
+      },
+      getSelectDocs(){
+        getSelectDocs()
+        .then(res=>{
+          this.selectDocs = res.docs;
+          console.log(res);
+        })
+        .catch(err=>{
+          console.log(err);
+        })
+      },     
       openDoc(row, event, column) {
         console.log(row);
         console.log(event);

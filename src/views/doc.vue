@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-button :icon="getTagIcon()" v-loading.fullscreen.lock="editorLock">
+      <el-button :icon="getTagIcon()" >
       </el-button>
     </el-row>
     <div id="toolbar-container">
@@ -57,7 +57,7 @@
         <button class="ql-clean"></button>
       </span>
     </div>
-    <div>
+    <div v-loading="editorLock">
       <!-- bidirectional data binding（双向数据绑定） -->
       <quill-editor v-model="content" ref="myQuillEditor" :options="editorOption" @blur="onEditorBlur($event)" @focus="onEditorFocus($event)"
         @ready="onEditorReady($event)" @change="onEditorChange($event)">
@@ -130,62 +130,7 @@
         // chatConnection.send('wow');
       }
       console.log('this is current quill instance object', this.editor);
-      this.disableEditor();
-      // var mydoc = shareDBConnection.get('examples', 'richtext')
-      let collectionName = this.$route.query.collectionName;
-      let documentId = this.$route.query.documentId;
-      console.log(collectionName, documentId);
-      this.mydoc = shareDBConnection.get(collectionName, documentId)
-      // const update = () => {
-      //   console.log('update')
-      //   console.log(this.editor.getContents())
-      //   // this.idMatch = query.results.map(e => e).reduce((a, t) => ({ ...a, [t.data.uid]: { sid: t.id } }), {})
-      //   // this.results = query.results.map(e => e.data)
-      // }
-      // var query = shareDBConnection.createSubscribeQuery('examples')
-      // query.on('ready', update)
-      // query.on('changed', update)
-      this.mydoc.subscribe((err) => {
-        if (err) throw err;
-
-        if (!this.mydoc.type)
-          this.mydoc.create([], 'rich-text');
-        this.editor.setContents(this.mydoc.data);
-        this.enableEditor();
-        this.editor.on('text-change', (delta, oldDelta, source) => {
-          if (source !== 'user') return;
-          let d = new Date()
-          let len = delta.ops.length
-          let color = colors[this.userInfo.id - 1];
-          // 一般有多个操作，暂时在insert上加一个attributes
-          for (let i = 0; i < delta.ops.length; i++) {
-            let op = delta.ops[i];
-            if (op.insert) {
-              op.attributes = {
-                // color: color,
-                user: this.userInfo.name
-              }
-              // 可以上色
-              // vm.$set(op, 'attributes', 'red')
-            } else {
-
-            }
-          }
-          console.log(d.getSeconds() + JSON.stringify(delta))
-          this.mydoc.submitOp(delta, {
-            source: 'wow'
-          })
-        })
-        this.mydoc.on('op', (op, source) => {
-          if (source === 'wow') return;
-          console.log(op);
-          this.editor.updateContents(op)
-        });
-        this.mydoc.on('error', (err) => {
-          console.log(err);
-          this.disableEditor();
-        })
-      })
+      this.init();
     },
     methods: {
       getTagIcon() {
@@ -198,6 +143,68 @@
       disableEditor() {
         this.editor.disable();
         this.editorLock = true;
+      },
+      init() {
+        this.disableEditor();
+        let collectionName = this.$route.query.collectionName;
+        let documentId = this.$route.query.documentId;
+        console.log(collectionName, documentId);
+        // 
+        // shareDBConnection.on("message", function shareIncoming(data){
+        //   console.log('sharedb message');
+        //   console.log(data);
+        // });
+        // shareDBConnection.onerror = function shareDBOnError(err){
+        //   console.log(JSON.stringify(err));
+        // }
+        try{
+          this.mydoc = shareDBConnection.get(collectionName, documentId);
+          this.mydoc.subscribe((err) => {
+            if (err) throw err;
+
+            if (!this.mydoc.type)
+              this.mydoc.create([], 'rich-text');
+            this.editor.setContents(this.mydoc.data);
+            this.enableEditor();
+            this.editor.on('text-change', (delta, oldDelta, source) => {
+              if (source !== 'user') return;
+              let d = new Date()
+              let len = delta.ops.length
+              let color = colors[this.userInfo.id - 1];
+              // 一般有多个操作，暂时在insert上加一个attributes
+              for (let i = 0; i < delta.ops.length; i++) {
+                let op = delta.ops[i];
+                if (op.insert) {
+                  op.attributes = {
+                    // color: color,
+                    user: this.userInfo.name
+                  }
+                  // 可以上色
+                  // vm.$set(op, 'attributes', 'red')
+                } else {
+
+                }
+              }
+              console.log(d.getSeconds() + JSON.stringify(delta))
+              this.mydoc.submitOp(delta, {
+                source: 'wow'
+              })
+            })
+          });
+          this.mydoc.on('op', (op, source) => {
+              if (source === 'wow') return;
+              console.log(op);
+              this.editor.updateContents(op)
+          });
+          this.mydoc.on('error', (err) => {
+              // console.log(err);
+              console.log(JSON.stringify(err));
+              console.log(err.message);
+              this.disableEditor();
+          });
+        } catch (err) {
+          console.log(JSON.stringify(err));
+        }
       },
       editorRedo() {
         console.log('redo')
