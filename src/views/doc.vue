@@ -3,6 +3,7 @@
     <el-row>
       <el-button :icon="getTagIcon()" >
       </el-button>
+      <el-button type="primary" @click="joinRoom()">join room</el-button>
     </el-row>
     <div id="toolbar-container">
       <span class="ql-formats">
@@ -67,177 +68,190 @@
 </template>
 
 <script>
-  import {
-    shareDBConnection
-  } from '../shareDBConnection'
-  import chatConnection from '../chatConnection'
-  import {
-    logout
-  } from '../api/user'
-  import {
-    mapGetters
-  } from 'vuex'
-  import Quill from 'quill'
-  import Parchment from 'parchment'
-  const colors = ['red', 'blue', 'green', 'gold']
-  // var userAttributor = new Parchment.Attributor.Attribute('user', 'class', {
-  //   scope: Parchment.Scope.INLINE
-  // })
-  // Quill.register(userAttributor)
-  export default {
-    name: 'HelloWorld',
-    data() {
-      return {
-        content: '',
-        editorLock: true,
-        editorOption: {
-          // some quill options
-          modules: {
-            // syntax: true,
-            toolbar: '#toolbar-container',
-            history: {
-              delay: 10000,
-              maxStack: 500,
-              userOnly: false,
-              // userOnly: true
+    import {
+        shareDBConnection
+    } from '../shareDBConnection'
+    // import chatConnection from '../chatConnection';
+    import {
+        logout
+    } from '../api/user'
+    import {
+        mapGetters
+    } from 'vuex'
+    import Quill from 'quill'
+    import Parchment from 'parchment'
+    const colors = ['red', 'blue', 'green', 'gold']
+    // var userAttributor = new Parchment.Attributor.Attribute('user', 'class', {
+    //   scope: Parchment.Scope.INLINE
+    // })
+    // Quill.register(userAttributor)
+    export default {
+        name: 'HelloWorld',
+        data() {
+            return {
+                content: '',
+                editorLock: true,
+                editorOption: {
+                    // some quill options
+                    modules: {
+                        // syntax: true,
+                        toolbar: '#toolbar-container',
+                        history: {
+                            delay: 10000,
+                            maxStack: 500,
+                            userOnly: false,
+                            // userOnly: true
+                        }
+                    },
+                    placeholder: '',
+                    theme: 'snow'
+                },
+                mydoc: ''
             }
-          },
-          placeholder: '',
-          theme: 'snow'
         },
-        mydoc: ''
-      }
-    },
-    computed: {
-      editor() {
-        return this.$refs.myQuillEditor.quill
-      },
-      // 使用对象展开运算符将 getter 混入 computed 对象中
-      ...mapGetters([
-        'userInfo',
-        // ...
-      ])
-    },
-    watch: {},
-    mounted() {
-      console.log(chatConnection)
-      chatConnection.onopen = function open() {
-        chatConnection.send('on open client send hello');
-      }
-      chatConnection.onmessage = function incoming(data) {
-        console.log('wsttt recive a message form server');
-        console.log(data);
-        // chatConnection.send('wow');
-      }
-      console.log('this is current quill instance object', this.editor);
-      this.init();
-    },
-    methods: {
-      getTagIcon() {
-        return this.editorLock ? 'el-icon-loading' : 'el-icon-success';
-      },
-      enableEditor() {
-        this.editor.enable();
-        this.editorLock = false;
-      },
-      disableEditor() {
-        this.editor.disable();
-        this.editorLock = true;
-      },
-      init() {
-        this.disableEditor();
-        let collectionName = this.$route.query.collectionName;
-        let documentId = this.$route.query.documentId;
-        console.log(collectionName, documentId);
-        // 
-        // shareDBConnection.on("message", function shareIncoming(data){
-        //   console.log('sharedb message');
-        //   console.log(data);
-        // });
-        // shareDBConnection.onerror = function shareDBOnError(err){
-        //   console.log(JSON.stringify(err));
-        // }
-        try{
-          this.mydoc = shareDBConnection.get(collectionName, documentId);
-          this.mydoc.subscribe((err) => {
-            if (err) throw err;
+        computed: {
+            editor() {
+                return this.$refs.myQuillEditor.quill
+            },
+            // 使用对象展开运算符将 getter 混入 computed 对象中
+            ...mapGetters([
+                'userInfo',
+                // ...
+            ])
+        },
+        sockets: {
+            connect: function() {
+                console.log('doc.vue socket connected');
+            },
+            newUser: function(data) {
+                console.log('this method was fired by the socket server. eg: io.emit("newUser", data)');
+                console.log(JSON.stringify(data));
+            }
+        },
+        watch: {},
+        mounted() {
+            // console.log(chatConnection);
+            // chatConnection.onopen = function open() {
+            //   chatConnection.send('on open client send hello');
+            // }
+            // chatConnection.onmessage = function incoming(data) {
+            //   console.log('wsttt recive a message form server');
+            //   console.log(data);
+            //   // chatConnection.send('wow');
+            // }
+            console.log('this is current quill instance object', this.editor);
+            this.init();
+        },
+        methods: {
+            joinRoom() {
+                let data = {
+                    documentId: this.$route.query.documentId,
+                    collectionName: this.$route.query.collectionName
+                };
+                this.$socket.emit('docroom', data);
+            },
+            getTagIcon() {
+                return this.editorLock ? 'el-icon-loading' : 'el-icon-success';
+            },
+            enableEditor() {
+                this.editor.enable();
+                this.editorLock = false;
+            },
+            disableEditor() {
+                this.editor.disable();
+                this.editorLock = true;
+            },
+            init() {
+                this.disableEditor();
+                let collectionName = this.$route.query.collectionName;
+                let documentId = this.$route.query.documentId;
+                console.log(collectionName, documentId);
+                // 
+                // shareDBConnection.on("message", function shareIncoming(data){
+                //   console.log('sharedb message');
+                //   console.log(data);
+                // });
+                // shareDBConnection.onerror = function shareDBOnError(err){
+                //   console.log(JSON.stringify(err));
+                // }
+                try {
+                    this.mydoc = shareDBConnection.get(collectionName, documentId);
+                    this.mydoc.subscribe((err) => {
+                        if (err) throw err;
 
-            if (!this.mydoc.type)
-              this.mydoc.create([], 'rich-text');
-            this.editor.setContents(this.mydoc.data);
-            this.enableEditor();
-            this.editor.on('text-change', (delta, oldDelta, source) => {
-              if (source !== 'user') return;
-              let d = new Date()
-              let len = delta.ops.length
-              let color = colors[this.userInfo.id - 1];
-              // 一般有多个操作，暂时在insert上加一个attributes
-              for (let i = 0; i < delta.ops.length; i++) {
-                let op = delta.ops[i];
-                if (op.insert) {
-                  op.attributes = {
-                    // color: color,
-                    user: this.userInfo.name
-                  }
-                  // 可以上色
-                  // vm.$set(op, 'attributes', 'red')
-                } else {
+                        if (!this.mydoc.type)
+                            this.mydoc.create([], 'rich-text');
+                        this.editor.setContents(this.mydoc.data);
+                        this.enableEditor();
+                        this.editor.on('text-change', (delta, oldDelta, source) => {
+                            if (source !== 'user') return;
+                            let d = new Date()
+                            let len = delta.ops.length
+                            let color = colors[this.userInfo.id - 1];
+                            // 一般有多个操作，暂时在insert上加一个attributes
+                            for (let i = 0; i < delta.ops.length; i++) {
+                                let op = delta.ops[i];
+                                if (op.insert) {
+                                    op.attributes = {
+                                        // color: color,
+                                        user: this.userInfo.name
+                                    }
+                                    // 可以上色
+                                    // vm.$set(op, 'attributes', 'red')
+                                } else {
 
+                                }
+                            }
+                            console.log(d.getSeconds() + JSON.stringify(delta))
+                            this.mydoc.submitOp(delta, {
+                                source: 'wow'
+                            })
+                        })
+                    });
+                    this.mydoc.on('op', (op, source) => {
+                        if (source === 'wow') return;
+                        console.log(op);
+                        this.editor.updateContents(op)
+                    });
+                    this.mydoc.on('error', (err) => {
+                        // console.log(err);
+                        console.log(JSON.stringify(err));
+                        console.log(err.message);
+                        this.disableEditor();
+                    });
+                } catch (err) {
+                    console.log(JSON.stringify(err));
                 }
-              }
-              console.log(d.getSeconds() + JSON.stringify(delta))
-              this.mydoc.submitOp(delta, {
-                source: 'wow'
-              })
-            })
-          });
-          this.mydoc.on('op', (op, source) => {
-              if (source === 'wow') return;
-              console.log(op);
-              this.editor.updateContents(op)
-          });
-          this.mydoc.on('error', (err) => {
-              // console.log(err);
-              console.log(JSON.stringify(err));
-              console.log(err.message);
-              this.disableEditor();
-          });
-        } catch (err) {
-          console.log(JSON.stringify(err));
+            },
+            editorRedo() {
+                console.log('redo')
+                this.editor.history.redo()
+            },
+            editorUndo() {
+                console.log('undo')
+                this.editor.history.undo()
+            },
+            onEditorBlur(quill) {
+                // console.log('editor blur!', quill)
+            },
+            onEditorFocus(quill) {
+                // console.log('editor focus!', quill)
+            },
+            onEditorReady(quill) {
+                // console.log('editor ready!', quill)
+            },
+            onEditorChange({
+                quill,
+                html,
+                text
+            }) {
+                // console.log('editor change!', quill, html, text)
+                this.content = html
+            }
         }
-      },
-      editorRedo() {
-        console.log('redo')
-        this.editor.history.redo()
-      },
-      editorUndo() {
-        console.log('undo')
-        this.editor.history.undo()
-      },
-      onEditorBlur(quill) {
-        // console.log('editor blur!', quill)
-      },
-      onEditorFocus(quill) {
-        // console.log('editor focus!', quill)
-      },
-      onEditorReady(quill) {
-        // console.log('editor ready!', quill)
-      },
-      onEditorChange({
-        quill,
-        html,
-        text
-      }) {
-        // console.log('editor change!', quill, html, text)
-        this.content = html
-      }
     }
-  }
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
 </style>

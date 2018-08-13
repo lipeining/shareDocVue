@@ -21,6 +21,9 @@
           </el-table-column>
         </el-table>
       </el-col>
+      <el-col>
+         <el-button type="primary" @click="sendIndex()">send index</el-button>
+      </el-col>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="7">
@@ -133,8 +136,20 @@
       this.getSelectDocs();
       this.getSelectUsers();
     },
+    sockets:{
+      connect: function(){
+        console.log('index.vue socket connected');
+      },
+      index: function(data){
+        console.log('this method was fired by the socket server. eg: io.emit("index", data)');
+        console.log(JSON.stringify(data));
+      }
+    },
     mounted() {},
     methods: {
+      sendIndex(){
+        this.$socket.emit("index", {msg: "index form client"});
+      },
       submitDocForm(formName) {
         this.$refs[formName].validate(valid => {
           if (!valid) {

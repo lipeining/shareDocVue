@@ -14,7 +14,9 @@ Vue.use(Vuex)
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
- 
+import VueSocketio from 'vue-socket.io';
+Vue.use(VueSocketio, 'http://localhost:5000');
+
 Vue.use(VueQuillEditor, /* { default global options } */)
 Vue.use(VueRouter)
 Vue.use(ElementUI)
