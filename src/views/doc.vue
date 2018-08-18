@@ -4,6 +4,7 @@
       <el-button :icon="getTagIcon()" >
       </el-button>
       <el-button type="primary" @click="joinRoom()">join room</el-button>
+      <el-button type="primary" @click="getEditorHtml()">get html</el-button>
     </el-row>
     <div id="toolbar-container">
       <span class="ql-formats">
@@ -86,7 +87,7 @@
     // })
     // Quill.register(userAttributor)
     export default {
-        name: 'HelloWorld',
+        name: 'Doc',
         data() {
             return {
                 content: '',
@@ -225,11 +226,11 @@
             },
             editorRedo() {
                 console.log('redo')
-                this.editor.history.redo()
+                this.editor.history.redo();
             },
             editorUndo() {
                 console.log('undo')
-                this.editor.history.undo()
+                this.editor.history.undo();
             },
             onEditorBlur(quill) {
                 // console.log('editor blur!', quill)
@@ -240,13 +241,17 @@
             onEditorReady(quill) {
                 // console.log('editor ready!', quill)
             },
+            getEditorHtml() {
+                console.log(this.content);
+                // console.log(this.editor.root.innerHtml);
+            },
             onEditorChange({
                 quill,
                 html,
                 text
             }) {
-                // console.log('editor change!', quill, html, text)
-                this.content = html
+                // console.log('editor change!', quill, html, text);
+                this.content = html;
             }
         }
     }
@@ -254,4 +259,42 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/* button[class*='ql-'] {
+    position: relative;
+    transition: background-color 0.4s ease;
+}
+
+button[class*='ql-']::hover{
+    background-color: rgba(255, 150, 0, 0.1) !important;
+}
+
+button[class*='ql-']::before,
+button[class*='ql-']::after {
+    z-index: 1;
+    display: inline-block;
+}
+button[class*='ql-']:hover::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border: 5px solid transparent;
+    border-bottom: 5px solid #444;
+}
+
+button[class*='ql-']:hover::after {
+    content: attr(msg);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    font-size: 10px;
+    transform: translate(-50%, 10px);
+    padding: 10px;
+    color: white;
+    background-color: #444;
+    border-radius: 4px;
+    word-break: keep-all;
+    line-height: 16px;
+} */
 </style>

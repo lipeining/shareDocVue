@@ -2,7 +2,8 @@
   <el-header>
     <el-menu :router=true :default-active="$route.path" mode="horizontal" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
       <el-menu-item index="/"> Home</el-menu-item>
-      <el-menu-item index="/timeslider"> TimeSlider</el-menu-item>
+      <!-- <el-menu-item index="/timeslider"> TimeSlider</el-menu-item> -->
+      <el-menu-item index="/importdoc"> import doc</el-menu-item>
       <el-submenu index="">
         <template slot="title">{{curUser.name}}</template>
         <el-menu-item index="/profile"> Profile</el-menu-item>

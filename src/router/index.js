@@ -7,6 +7,7 @@ import reg from '@/views/reg'
 import store from '@/vuex/user'
 import timeslider from '@/views/timeslider'
 import doc from '@/views/doc'
+import importdoc from '@/views/importdoc'
 
 Vue.use(Router)
 
@@ -55,6 +56,14 @@ let routes = [{
     path: '/doc',
     name: 'doc',
     component: doc,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/importdoc',
+    name: 'importdoc',
+    component: importdoc,
     meta: {
       requiresAuth: true
     }

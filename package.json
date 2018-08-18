@@ -13,6 +13,7 @@
     "axios": "^0.18.0",
     "crypto-js": "^3.1.9-1",
     "element-ui": "^2.4.5",
+    "mammoth": "^1.4.6",
     "parchment": "^1.1.4",
     "reconnecting-websocket": "^4.0.0-rc5",
     "rich-text": "^3.1.0",
