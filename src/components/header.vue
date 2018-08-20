@@ -12,6 +12,7 @@
           </i>
         </el-menu-item>
       </el-submenu>
+      <el-menu-item index=""><i class="el-icon-news" :class="{'readMsg': needRead}"></i></el-menu-item>
     </el-menu>
   </el-header>
 </template>
@@ -33,8 +34,23 @@
     },
     data() {
       return {
+        needRead: false,
         menuIndex: '1'
       };
+    },
+    sockets: {
+      connect: function(){
+        console.log('header.vue socket connected');
+      },
+      updateUser: function(data){
+        console.log('this method was fired by the socket server. eg: io.emit("updateUser", data)');
+         this.$store.dispatch('setUserInfo', data.user);
+      },
+      index: function(data){
+        console.log('this method was fired by the socket server. eg: io.emit("index", data)');
+        console.log(JSON.stringify(data));
+        this.needRead = true;
+      }
     },
     created() {},
     methods: {
@@ -60,6 +76,8 @@
 </script>
 
 <style scoped>
-
+  .readMsg {
+    background-color: goldenrod;
+  }
 
 </style>

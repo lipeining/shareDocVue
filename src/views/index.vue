@@ -137,13 +137,6 @@
       this.getSelectUsers();
     },
     sockets:{
-      connect: function(){
-        console.log('index.vue socket connected');
-      },
-      index: function(data){
-        console.log('this method was fired by the socket server. eg: io.emit("index", data)');
-        console.log(JSON.stringify(data));
-      }
     },
     mounted() {},
     methods: {

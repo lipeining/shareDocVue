@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <app-header v-if="isLogin">
+    <app-header v-if="showHeader()">
     </app-header>
     <!-- <img src="./assets/logo.png"> -->
     <router-view/>
@@ -14,13 +14,18 @@
     name: 'App',
     components: {
       AppHeader
-    },    
+    },
     computed  : {
       // 使用对象展开运算符将 getter 混入 computed 对象中
       ...mapGetters([
         'isLogin'
       ])
     },
+    methods: {
+      showHeader() {
+        return this.isLogin && this.$route.name!=='doc';
+      }
+    }
   }
 
 </script>
