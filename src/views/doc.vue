@@ -6,76 +6,107 @@
       <el-button type="primary" @click="joinRoom()">join room</el-button>
       <el-button type="primary" @click="getEditorHtml()">get html</el-button>
     </el-row>
-    <div id="toolbar-container">
-      <span class="ql-formats">
-        <button msg="undo" @click="editorUndo">
-          <i class="el-icon-d-arrow-left"></i>
-        </button>
-        <button msg="redo" @click="editorRedo">
-          <i class="el-icon-d-arrow-right"></i>
-        </button>
-      </span>
-      <span class="ql-formats">
-        <select class="ql-font"></select>
-        <select class="ql-size"></select>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
-        <button class="ql-strike"></button>
-      </span>
-      <span class="ql-formats">
-        <select class="ql-color"></select>
-        <select class="ql-background"></select>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-script" value="sub"></button>
-        <button class="ql-script" value="super"></button>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-header" value="1"></button>
-        <button class="ql-header" value="2"></button>
-        <button class="ql-blockquote"></button>
-        <button class="ql-code-block"></button>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
-        <button class="ql-indent" value="-1"></button>
-        <button class="ql-indent" value="+1"></button>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-direction" value="rtl"></button>
-        <select class="ql-align"></select>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-link"></button>
-        <button class="ql-image"></button>
-        <button class="ql-video"></button>
-        <button class="ql-formula"></button>
-      </span>
-      <span class="ql-formats">
-        <button class="ql-clean"></button>
-      </span>
-    </div>
-    <div v-loading="editorLock">
-      <!-- bidirectional data binding（双向数据绑定） -->
-      <quill-editor v-model="content" ref="myQuillEditor" :options="editorOption" @blur="onEditorBlur($event)" @focus="onEditorFocus($event)"
-        @ready="onEditorReady($event)" @change="onEditorChange($event)">
-      </quill-editor>
-    </div>
+    <el-row>
+        <el-col :span="18">
+            <div id="toolbar-container">
+                <span class="ql-formats">
+                    <button msg="undo" @click="editorUndo">
+                    <i class="el-icon-d-arrow-left"></i>
+                    </button>
+                    <button msg="redo" @click="editorRedo">
+                    <i class="el-icon-d-arrow-right"></i>
+                    </button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-font"></select>
+                    <select class="ql-size"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-strike"></button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-color"></select>
+                    <select class="ql-background"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-script" value="sub"></button>
+                    <button class="ql-script" value="super"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-header" value="1"></button>
+                    <button class="ql-header" value="2"></button>
+                    <button class="ql-blockquote"></button>
+                    <button class="ql-code-block"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                    <button class="ql-indent" value="-1"></button>
+                    <button class="ql-indent" value="+1"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-direction" value="rtl"></button>
+                    <select class="ql-align"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-link"></button>
+                    <button class="ql-image"></button>
+                    <button class="ql-video"></button>
+                    <button class="ql-formula"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-clean"></button>
+                </span>
+            </div>
+            <div v-loading="editorLock">
+            <!-- bidirectional data binding（双向数据绑定） -->
+            <quill-editor v-model="content" ref="myQuillEditor" :options="editorOption" @blur="onEditorBlur($event)" @focus="onEditorFocus($event)"
+                @ready="onEditorReady($event)" @change="onEditorChange($event)">
+            </quill-editor>
+            </div>
+        </el-col>
+         <el-col :span="5">
+             <el-button icon="el-icon-service" @click="handleClickShow()" v-show="!showChat" circle></el-button>
+             <div  v-show="showChat" @click="handleClickShow()">
+                 <span >drop down<i class="el-icon-caret-bottom el-icon--right"></i></span>
+             </div>
+             <div v-show="showChat" class="chatMain">
+                <el-scrollbar class="list">
+                    <ul v-if="chatList.length">
+                        <li v-for="chat of chatList" :key="chat.id" class="chatP">
+                            <span>{{chat.user.name}}:</span>
+                            <span>{{chat.content}}</span>
+                        </li>
+                    </ul>
+                </el-scrollbar>
+                <div class="chatInput">
+                    <!-- <textarea  @keydown="keydownEnter($event)"
+                    v-model="chatInput" placeholder="请输入内容"
+                        :rows="2" ></textarea> -->
+                    <el-input  @keydown.native="keydownEnter($event)"
+                    v-model="chatInput" placeholder="请输入内容"
+                        type="textarea" :rows="2" ></el-input>
+                </div>
+             </div>
+         </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
     import {
         shareDBConnection
-    } from '../shareDBConnection'
+    } from '../shareDBConnection';
     // import chatConnection from '../chatConnection';
     import {
         logout
-    } from '../api/user'
+    } from '../api/user';
+    import {
+        getChats
+    } from '../api/chat';
     import {
         mapGetters
     } from 'vuex'
@@ -90,7 +121,12 @@
         name: 'Doc',
         data() {
             return {
+                pending: { ops: [] },
+                lastSend: 0,
                 content: '',
+                chatInput: '',
+                showChat: false,
+                chatList: [],
                 editorLock: true,
                 editorOption: {
                     // some quill options
@@ -121,12 +157,16 @@
             ])
         },
         sockets: {
-            connect: function() {
+            connect: () => {
                 console.log('doc.vue socket connected');
             },
             newUser: function(data) {
                 console.log('this method was fired by the socket server. eg: io.emit("newUser", data)');
                 console.log(JSON.stringify(data));
+            },
+            chat: function(data) {
+                let chat = data.chat;
+                this.chatList.push(chat);
             }
         },
         watch: {},
@@ -143,16 +183,55 @@
             console.log('this is current quill instance object', this.editor);
             this.init();
         },
+        created() {
+            this.joinRoom();
+            this.getChats();
+        },
         methods: {
             joinRoom() {
                 let data = {
                     documentId: this.$route.query.documentId,
-                    collectionName: this.$route.query.collectionName
+                    collectionName: this.$route.query.collectionName,
+                    docId: this.$route.query.docId
                 };
                 this.$socket.emit('docroom', data);
             },
+            keydownEnter(e) {
+                // console.log(e);
+                // element-ui需要加native
+                if (!e.shiftKey && e.key === 'Enter') {
+                    // 发送
+                    e.preventDefault();
+                    this.submitChat();
+                } else if (e.shiftKey && e.key === 'Enter') {
+                    this.chatInput += '\n';
+                }
+            },
+            submitChat() {
+                let data = {
+                    content: this.chatInput,
+                    ref: ''
+                };
+                this.$socket.emit('chat', data);
+                this.chatInput = '';
+            },
+            getChats() {
+                getChats({ docId: this.$route.query.docId })
+                    .then(res => {
+                        this.chatList = res.data.reverse();
+                    })
+                    .catch(err => {
+                        this.$message.error('get chats error');
+                    });
+            },
+            scrollChatList(e) {
+                console.log(e);
+            },
             getTagIcon() {
                 return this.editorLock ? 'el-icon-loading' : 'el-icon-success';
+            },
+            handleClickShow() {
+                this.showChat = !this.showChat;
             },
             enableEditor() {
                 this.editor.enable();
@@ -203,10 +282,10 @@
 
                                 }
                             }
-                            console.log(d.getSeconds() + JSON.stringify(delta))
+                            console.log(d.getSeconds() + JSON.stringify(delta));
                             this.mydoc.submitOp(delta, {
                                 source: 'wow'
-                            })
+                            });
                         })
                     });
                     this.mydoc.on('op', (op, source) => {
@@ -259,7 +338,37 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-/* button[class*='ql-'] {
+    .chatMain {
+        border: 2px solid transparent;
+        border-color: azure;
+        border-radius: 1rem;
+        display: block;
+        height: 300px;
+    }
+
+    .chatP {
+        margin: 2px;
+        padding: 2px;
+        border: aliceblue solid;
+        border-radius: 2px;
+        display: block;
+    }
+
+    .list {
+        height: 100%;
+    }
+
+    .wrap {
+        overflow-x: hidden;
+    }
+
+    .chatInput {
+        flex-direction: column;
+        display: flex;
+        flex-grow: 1;
+    }
+
+    /* button[class*='ql-'] {
     position: relative;
     transition: background-color 0.4s ease;
 }

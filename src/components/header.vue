@@ -12,7 +12,18 @@
           </i>
         </el-menu-item>
       </el-submenu>
-      <el-menu-item index=""><i class="el-icon-news" :class="{'readMsg': needRead}"></i></el-menu-item>
+      <el-menu-item index="">
+        <el-dropdown @command="handleCommand">
+          <span>
+            消息<i class="el-icon-news el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item :key="m.id" v-for="m of msgs" :command="m.id" >
+              <p>{{m.content}}</p>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-menu-item>
     </el-menu>
   </el-header>
 </template>
@@ -34,6 +45,10 @@
     },
     data() {
       return {
+        msgs: [{
+          id: 1,
+          content: 'wowwow'
+        }],
         needRead: false,
         menuIndex: '1'
       };
@@ -46,14 +61,19 @@
         console.log('this method was fired by the socket server. eg: io.emit("updateUser", data)');
          this.$store.dispatch('setUserInfo', data.user);
       },
-      index: function(data){
-        console.log('this method was fired by the socket server. eg: io.emit("index", data)');
-        console.log(JSON.stringify(data));
+      systemNews: function(data) {
         this.needRead = true;
       }
     },
     created() {},
     methods: {
+      handleCommand(command) {
+        // console.log(command);
+        this.$message({
+          message: command,
+          type: 'success'
+          });
+      },
       logout() {
         logout()
           .then(res => {

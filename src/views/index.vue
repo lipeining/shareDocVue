@@ -62,165 +62,179 @@
 </template>
 
 <script>
-  import {
-    createDoc,
-    getSelectDocs,
-    addDocUser
-  } from '../api/doc';
-  import{
-    getSelectUsers
-  } from '../api/user';
-  import {
-    mapGetters
-  } from 'vuex';
-  export default {
-    name: 'Index',
-    data() {
-      const docRules = {
-        collectionName: [{
-            required: true,
-            message: 'please input plan collectionName'
-          },
-          {
-            min: 2,
-            max: 16,
-            message: '长度在 2 到 16 个字符'
-          }
-        ],
-        documentId: [{
-            required: true,
-            message: 'please input plan documentId'
-          },
-          {
-            min: 2,
-            max: 16,
-            message: '长度在 2 到 16 个字符'
-          }
-        ]
-      };
-      // ObjectId("5b6adc2d5a59ad0010950847")said2
-      // ObjectId("5b6e755ba046d70010a33230")office doc4 
-      const userRules = {
-        docId: [{
-          required: true,
-          message: 'please input plan docId'
-        }],
-        userId: [{
-          required: true,
-          message: 'please input plan userId'
-        }]
-      };
-      return {
-        doc: {
-          collectionName: '',
-          documentId: ''
+    import {
+        createDoc,
+        getSelectDocs,
+        addDocUser
+    } from '../api/doc';
+    import {
+        getSelectUsers
+    } from '../api/user';
+    import {
+        mapGetters
+    } from 'vuex';
+    export default {
+        name: 'Index',
+        data() {
+            const docRules = {
+                collectionName: [{
+                        required: true,
+                        message: 'please input plan collectionName'
+                    },
+                    {
+                        min: 2,
+                        max: 16,
+                        message: '长度在 2 到 16 个字符'
+                    }
+                ],
+                documentId: [{
+                        required: true,
+                        message: 'please input plan documentId'
+                    },
+                    {
+                        min: 2,
+                        max: 16,
+                        message: '长度在 2 到 16 个字符'
+                    }
+                ]
+            };
+            // ObjectId("5b6adc2d5a59ad0010950847")said2
+            // ObjectId("5b6e755ba046d70010a33230")office doc4 
+            const userRules = {
+                docId: [{
+                    required: true,
+                    message: 'please input plan docId'
+                }],
+                userId: [{
+                    required: true,
+                    message: 'please input plan userId'
+                }]
+            };
+            return {
+                doc: {
+                    collectionName: '',
+                    documentId: ''
+                },
+                docuser: {
+                    docId: '',
+                    userId: ''
+                },
+                regIndex: false,
+                selectUsers: [],
+                selectDocs: [],
+                docRules: docRules,
+                userRules: userRules
+            }
         },
-        docuser: {
-          docId: '',
-          userId: ''
+        computed: {
+            // 使用对象展开运算符将 getter 混入 computed 对象中
+            ...mapGetters([
+                'userInfo',
+                // ...
+            ])
         },
-        selectUsers: [],
-        selectDocs: [],
-        docRules: docRules,
-        userRules: userRules
-      }
-    },
-    computed: {
-      // 使用对象展开运算符将 getter 混入 computed 对象中
-      ...mapGetters([
-        'userInfo',
-        // ...
-      ])
-    },
-    created() {
-      this.getSelectDocs();
-      this.getSelectUsers();
-    },
-    sockets:{
-    },
-    mounted() {},
-    methods: {
-      sendIndex(){
-        this.$socket.emit("index", {msg: "index form client"});
-      },
-      submitDocForm(formName) {
-        this.$refs[formName].validate(valid => {
-          if (!valid) {
-            return false;
-          } else {
-            console.log(JSON.stringify(this.doc));
-            createDoc(this.doc)
-              .then(result => {})
-              .catch(err => {
-                this.$notify.error({
-                  title: 'create doc error',
-                  message: err
+        created() {
+            this.sendIndex();
+            this.getSelectDocs();
+            this.getSelectUsers();
+        },
+        sockets: {
+            index: function(data) {
+                console.log('this method was fired by the socket server. eg: io.emit("index", data)');
+                console.log(JSON.stringify(data));
+                if (data.success) {
+                    // 如果已经注册到index页面的话
+                    this.regIndex = true;
+                } else {
+                  this.$router.go(0);
+                    // 2秒后重试
+                    // setTimeout(() => {
+                    //     this.sendIndex();
+                    // }, 2000);
+                }
+            }
+        },
+        mounted() {},
+        methods: {
+            sendIndex() {
+                this.$socket.emit("index", { msg: "index form client" });
+            },
+            submitDocForm(formName) {
+                this.$refs[formName].validate(valid => {
+                    if (!valid) {
+                        return false;
+                    } else {
+                        console.log(JSON.stringify(this.doc));
+                        createDoc(this.doc)
+                            .then(result => {})
+                            .catch(err => {
+                                this.$notify.error({
+                                    title: 'create doc error',
+                                    message: err
+                                });
+                                console.log(err);
+                            });
+                    }
                 });
-                console.log(err);
-              });
-          }
-        });
-      },
-      submitDocUserForm(formName) {
-        this.$refs[formName].validate(valid => {
-          if (!valid) {
-            return false;
-          } else {
-            console.log(JSON.stringify(this.docuser));
-            addDocUser(this.docuser)
-              .then(result => {})
-              .catch(err => {
-                this.$notify.error({
-                  title: 'add doc user error',
-                  message: err
+            },
+            submitDocUserForm(formName) {
+                this.$refs[formName].validate(valid => {
+                    if (!valid) {
+                        return false;
+                    } else {
+                        console.log(JSON.stringify(this.docuser));
+                        addDocUser(this.docuser)
+                            .then(result => {})
+                            .catch(err => {
+                                this.$notify.error({
+                                    title: 'add doc user error',
+                                    message: err
+                                });
+                                console.log(err);
+                            });
+                    }
                 });
-                console.log(err);
-              });
-          }
-        });
-      },
-      getSelectUsers(){
-        getSelectUsers()
-        .then(res=>{
-          this.selectUsers = res.users;
-          console.log(res);
-        })
-        .catch(err=>{
-          console.log(err);
-        })
-      },
-      getSelectDocs(){
-        getSelectDocs()
-        .then(res=>{
-          this.selectDocs = res.docs;
-          console.log(res);
-        })
-        .catch(err=>{
-          console.log(err);
-        })
-      },     
-      openDoc(row, event, column) {
-        console.log(row);
-        console.log(event);
-        console.log(column);
-        const {
-          href
-        } = this.$router.resolve({
-          name: 'doc',
-          query: {
-            collectionName: row.item.collectionName,
-            documentId: row.item.documentId
-          }
-        });
-        window.open(href, '_blank');
-      }
+            },
+            getSelectUsers() {
+                getSelectUsers()
+                    .then(res => {
+                        this.selectUsers = res.users;
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
+            },
+            getSelectDocs() {
+                getSelectDocs()
+                    .then(res => {
+                        this.selectDocs = res.docs;
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
+            },
+            openDoc(row, event, column) {
+                console.log(row);
+                console.log(event);
+                console.log(column);
+                const {
+                    href
+                } = this.$router.resolve({
+                    name: 'doc',
+                    query: {
+                        collectionName: row.item.collectionName,
+                        documentId: row.item.documentId,
+                        docId: row.item._id
+                    }
+                });
+                window.open(href, '_blank');
+            }
+        }
     }
-  }
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
 </style>
