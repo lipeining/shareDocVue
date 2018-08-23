@@ -62,6 +62,7 @@
          this.$store.dispatch('setUserInfo', data.user);
       },
       systemNews: function(data) {
+        this.msgs.push(data.msg);
         this.needRead = true;
       }
     },

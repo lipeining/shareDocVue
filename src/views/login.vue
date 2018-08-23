@@ -10,11 +10,13 @@
              :rules="rules" ref="loginForm">
       <h2 class="heading">Login</h2>
       <el-form-item label="Email" prop="email">
-        <el-input type="text" v-model="user.email" placeholder="Please enter email">
+        <el-input type="text" v-model="user.email" placeholder="Please enter email" 
+          @keydown.enter.native="submit('loginForm')">
         </el-input>
       </el-form-item>
       <el-form-item label="password" prop="password">
-        <el-input type="password" v-model="user.password" placeholder="Please enter password">
+        <el-input type="password" v-model="user.password" placeholder="Please enter password"
+          @keydown.enter.native="submit('loginForm')">
         </el-input>
       </el-form-item>
       <el-button type="primary" :loading="loading" @click="submit('loginForm')">

@@ -42,9 +42,10 @@
           <el-form-item label="docId" prop="docId">
             <!-- <el-input v-model="docuser.docId" type="text"></el-input> -->
             <el-select v-model="docuser.docId" clearable placeholder="请选择">
-              <el-option v-for="item in selectDocs" :key="item._id" :label="item.documentId" :value="item._id">
+              <el-option v-for="item in selectDocs" :key="item._id" 
+                :label="`${item.collectionName}-${item.documentId}`" :value="item._id">
               </el-option>
-            </el-select>            
+            </el-select>
           </el-form-item>
           <el-form-item label="userId" prop="userId">
             <!-- <el-input v-model="docuser.userId" type="text"></el-input> -->
@@ -52,6 +53,12 @@
               <el-option v-for="item in selectUsers" :key="item._id" :label="item.name" :value="item._id">
               </el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item label="status" prop="status">
+            <el-select v-model="docuser.status" clearable placeholder="请选择">
+              <el-option v-for="item in selectStatus" :key="item.value" :label="item.name" :value="item.value">
+              </el-option>
+            </el-select>             
           </el-form-item>
           <el-button type="primary" @click="submitDocUserForm('docUserForm')">submit</el-button>
         </el-form>
@@ -110,6 +117,16 @@
                     message: 'please input plan userId'
                 }]
             };
+            const selectStatus = [{
+                name: 'write-read',
+                value: 0
+            }, {
+                name: 'read-only',
+                value: 1
+            }, {
+                name: 'remove-user',
+                value: 2
+            }];
             return {
                 doc: {
                     collectionName: '',
@@ -117,9 +134,11 @@
                 },
                 docuser: {
                     docId: '',
-                    userId: ''
+                    userId: '',
+                    status: 0
                 },
                 regIndex: false,
+                selectStatus: selectStatus,
                 selectUsers: [],
                 selectDocs: [],
                 docRules: docRules,
@@ -146,7 +165,7 @@
                     // 如果已经注册到index页面的话
                     this.regIndex = true;
                 } else {
-                  this.$router.go(0);
+                //   this.$router.go(0);
                     // 2秒后重试
                     // setTimeout(() => {
                     //     this.sendIndex();
